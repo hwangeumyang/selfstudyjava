@@ -1,21 +1,18 @@
-package chap03.sec01.exam01;
+package chap03.sec01;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-public class WriteExample {
+//write(byte[] b) Å×½ºÆ®
+//ABC
+public class WriteExample2 {
 	public static void main(String [] args) throws Exception{
 
-		OutputStream os = new FileOutputStream("c:/Temp/test.db");
+		OutputStream os = new FileOutputStream("c:/Temp/test2.db");
+
+		byte [] array = { 65, 0x42, 0103 };
+		os.write(array);		
 		
-		byte a = 10;
-		byte b = 20;
-		byte c = 30;
-		
-		os.write(a);		
-		os.write(b);
-		Thread.sleep(2000);
-		os.write(c);
 		
 		
 //		os.flush();
