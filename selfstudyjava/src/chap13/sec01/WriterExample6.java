@@ -1,4 +1,4 @@
-package chap03.sec01;
+package chap13.sec01;
 
 import java.io.Writer;
 import java.io.FileWriter;
