@@ -1,4 +1,4 @@
-package chap13.sec02;
+package chap14.sec02;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
