@@ -77,6 +77,8 @@ Reader reader = new InputStreamReader(fis);
 - 출력스트림은 기본적으로 작은 버퍼를 가지고 있다. 하지만 더 큰 버퍼를 제공하는 친구들도 있다.
 - BufferedInputStream, BufferedOutputStream
 - BufferedReader, BufferedWriter
+- BufferedReader에는 readLine()이 있다. 편리함.
+
 ```java
 BufferedOutputStream bos = new BufferedOutputStream(ByteBasedOutputStream);
 BufferedWriter bw = new BUfferedWriter(CharacterBasedOutputStream);
@@ -103,3 +105,71 @@ BufferedReader br = new BufferedReader(CharacterBasedInputStream);
 DataInputSTream dis = new DataInputStream(bytebasedInputStream)
 DataOutputStream dos = new DataOutputSTtream(bytebasedOutputStream)
 ```
+
+- 상당히 직관적으로 작동한다. 끝에 2, 3을 저장한 부분이 각각 32비트씩 차지한 것을 확인할 수 있다.(자바는 int형이 항상 32비트씩 차지한다.)
+
+```java
+		write("홍길동", 95.5, 1);
+		write("감자바", 90.3, 2);
+		os.writeInt(2);
+		os.writeInt(3);
+		os.flush();
+		os.close();
+```
+![](./img/datastream.png)
+
+- 두개의 인트를 집어넣어 더블형으로 읽을 수 있다.위키의 Double-precision floating-point format에서 1에 해당하는 example을 참조했다.
+
+```java
+		
+		dos.writeInt(0b00111111111100000000000000000000); //오른쪽 0의 갯수는 20bit이다,왼쪽 1의 개수 10개 / 0의 개수 2개 32비트 
+		dos.writeInt(0);  //0 32비트
+		
+		System.out.println(dis.readDouble());		
+		-----
+		> 1.0		
+
+```
+
+#### 프린터 보조 스트림
+
+- PrintStream, PrintWriter
+- print(), println을 가지고 있는 보조 스트림
+- System.out => PrintStream
+
+```java
+	PrintStream ps = new PrintStream(BytebasedStream);
+	PrintWriter pw = new PrintWriter(CharacterBasedStream);
+```
+
+- 프린트 스트림을 쓰더라도 버퍼드 스트림을 같이 쓰면 성능 향상이 미약하게 있는 것 같았다.
+- printstream을 쓰지않고 BufferedOutputStream만 쓰면 출력은 더 빠르나 문자열을 그대로 쓸 수 없는 불편함이 있다.(string->byte[]의 시간을 포함하면 별 차이가 없었다.)
+
+```java
+	FileOutputStream fos = new FileOutputStream(fp);
+	BufferedOutputStream bos = new BufferedOutputStream(fos);
+	PrintStream ps = new PrintStream(bos);
+```
+```
+시행	f-b	f-b-p	f-p
+1회	792300	1373800	1566200
+2회	565400	1046600	985900
+3회	766400	877300	948400
+4회	676600	878700	1062700
+5회	576300	829800	829700
+6회	707600	739700	1335200
+7회	748800	793300	1397000
+8회	555800	1025300	950600
+9회	477200	849900	922000
+10회	438800	651000	831700
+평균	630520	906540	1082940
+```
+- 위의 표는  bufferedWriter의 경우 미리 string을 byte의 배열로 변환시켜 출력했다. 그냥 쓸때 프린트 스트림을 쓴다고 아주 큰 성능피해는 없을 것으로 기대된다.
+
+#### 객체 입출력 보조 스트림
+
+- ObjectInputStream, ObjectOutputStream
+- 바이트 기반 입출력 스트림에 연결해서 쓰면 된다.
+- java.io.Serializable인터페이스를 구현한 객체만 직렬화가 가능하다.
+- 해당 객체 뿐 아니라 해당 객체의 필드도 모두 직렬화가 가능해야한다. (다만 객체가 배당되지 않은 클래스 변수만 있는 경우는 별 상관없다.)
+
