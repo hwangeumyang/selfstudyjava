@@ -173,3 +173,46 @@ DataOutputStream dos = new DataOutputSTtream(bytebasedOutputStream)
 - java.io.Serializable인터페이스를 구현한 객체만 직렬화가 가능하다.
 - 해당 객체 뿐 아니라 해당 객체의 필드도 모두 직렬화가 가능해야한다. (다만 객체가 배당되지 않은 클래스 변수만 있는 경우는 별 상관없다.)
 
+### 14-3 입출력 관련 API
+- System.in: 콘솔에서 데이터 입력
+- System.out: 콘솔에 데이터 출력
+- System.err: 에러 출력
+
+#### System.in 필드
+
+-InputStream 타입
+-read()로 1byte씩 키보드입력값 확인
+-BufferedReader에 연결해 라인단위로 읽을 수 있다.
+
+```java
+InputStream is = System.in;
+Reader reader = new InputStreamReader(is);
+BufferedReader br = new BufferedReader(reader);
+----------
+br.readLine();
+```
+
+#### System.out 필드
+
+- 콘솔-모니터 스트림
+- PrintStream
+
+#### Scanner 클래스
+
+- 문자파일, 바이트기반 스트림에서 라인단위 문자열을 읽기 쉽게 작성됨
+
+```java
+Scanner scanner = new Scanner(System.in);
+```
+
+#### File 클래스
+
+- 파일 및 디렉토리 정보 제공
+
+```java
+File file = new File("c:/temp/file.txt");
+File file = new File("c:\\temp\\file.txt");
+```
+
+- 리눅스는 / 윈도우즈는 /, \("\\"로 표기) 둘다 사용가능
+- 객체를 생성했다고 파일이나 폴더가 생성되는 것은 아님, 없다고 예외가 뜨는것도 아님
