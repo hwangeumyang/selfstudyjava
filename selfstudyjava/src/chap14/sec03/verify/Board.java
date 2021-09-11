@@ -70,7 +70,7 @@ public class Board implements Serializable {
 	
 	public String toString() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		return String.format("%d\t%d\t%d\t%d\t%d\n", bno, title, writer, sdf.format(date)); 
+		return String.format("%d\t%s\t%s\t%s\n", bno, title, writer, sdf.format(date)); 
 	}
 	
 }
