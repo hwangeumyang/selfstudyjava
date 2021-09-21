@@ -321,3 +321,123 @@ LocalDate newDate = LocalDate.parse("2001-01-01");
 DateTimeFormatter pat = DateTimeFormatter.ofPattenr("yyyy-MM-dd HH:mm:ss");
 LocalDateTime endOfYear = LocalDateTime.parse("2015-12-31 23:59:59", pat);
 ```
+
+## Chap 11 컬렉션 프레임웍
+
+### 1. 컬렉션 프레임웍
+
+- 데이터 군(群)을 저장하는 클래스들을 표준화한 설계
+    - 컬렉션: 데이터그룹
+    - 프레임웍: 표준화된 프로그래밍 방식
+- JDK는 Vector, Hashtable, Properties같은 클래스들을 서로 다른 방식으로 처리했으나 JDK1.2부터 모든 컬렉션을 표준화된 방식으로 다룰 수 있게 되었다.
+
+#### 1.1 컬렉션 프레임웍의 핵심 인터페이스
+
+<img src="img/11-1_Collection_Interface.png" width="50%" style="display:block; margin: auto" alt="직접그림";/>
+
+- List와 Set을 구현한 컬렉션 클래스들은 서로 공통점이 많아 Collection 인터페이스로 정의되었다. Map은 이질적이기에 그렇지 못했다.
+- Iterable 인터페이스는 JDK1.5부터 추가되었는 데 iterator()로 중복을 없애기위함이므로 컬렉션으로서의 의미는 작다.
+
+<table summary="general purpose implementations and interfaces" border="2" align="center">
+<thead>
+<tr>
+<th id="interfaces">Interface</th>
+<th id="hashtable">Hash Table</th>
+<th id="resizablearray">Resizable Array</th>
+<th id="balancedtree">Balanced Tree</th>
+<th id="linkedlist">Linked List</th>
+<th id="hashtableandlinkedlist">Hash Table + Linked List</th>
+</tr>
+<tr>
+<td headers="interfaces"><code>Set</code></td>
+<td headers="hashtable"><a href="../../../api/java/util/HashSet.html"><tt>HashSet</tt></a></td>
+<td headers="resizablearray">&nbsp;</td>
+<td headers="balancedtree"><a href="../../../api/java/util/TreeSet.html"><tt>TreeSet</tt></a></td>
+<td headers="linkedlist">&nbsp;</td>
+<td headers="hashtableandlinkedlist"><a href="../../../api/java/util/LinkedHashSet.html"><tt>LinkedHashSet</tt></a></td>
+</tr>
+<tr>
+<td headers="interfaces"><code>List</code></td>
+<td headers="hashtable">&nbsp;</td>
+<td headers="resizablearray"><a href="../../../api/java/util/ArrayList.html"><tt>ArrayList</tt></a></td>
+<td headers="balancedtree">&nbsp;</td>
+<td headers="linkedlist"><a href="../../../api/java/util/LinkedList.html"><tt>LinkedList</tt></a></td>
+<td headers="hashtableandlinkedlist">&nbsp;</td>
+</tr>
+<tr>
+<td headers="interfaces"><code>Deque</code></td>
+<td headers="hashtable">&nbsp;</td>
+<td headers="resizablearray"><a href="../../../api/java/util/ArrayDeque.html"><tt>ArrayDeque</tt></a></td>
+<td headers="balancedtree">&nbsp;</td>
+<td headers="linkedlist"><a href="../../../api/java/util/LinkedList.html"><tt>LinkedList</tt></a></td>
+<td headers="hashtableandlinkedlist">&nbsp;</td>
+</tr>
+<tr>
+<td headers="interfaces"><code>Map</code></td>
+<td headers="hashtable"><a href="../../../api/java/util/HashMap.html"><tt>HashMap</tt></a></td>
+<td headers="resizablearray">&nbsp;</td>
+<td headers="balancedtree"><a href="../../../api/java/util/TreeMap.html"><tt>TreeMap</tt></a></td>
+<td headers="linkedlist">&nbsp;</td>
+<td headers="hashtableandlinkedlist"><a href="../../../api/java/util/LinkedHashMap.html"><tt>LinkedHashMap</tt></a></td>
+</tr>
+</thead>
+</table> 
+
+- List: 순서가 있는 데이터의 집합. 데이터의 중복을 허용
+    - ArrayList, LInkedList, Stack, Vector 등
+- Set : 순서를 유지하지 않는 데이터의 집합, 데이터의 중복 비허용
+    - HashSet, TreeSet 등
+- Map : 키와 값의 쌍으로 이루어진 데이터의 집합, 순서유지 X, 키는 중복비허용, 데이터는 중복 허용
+    - HashMap, TreeMap, HashTable, Properties 등
+- Vector, Stack, Hashtable, Properties는 컬렉션 프레임웍 이전에 만들어져 명명규칙이 이후와 다르다.
+- Vector, Hashtable은 호환성을 위해 남겨놓고 상속관계도 구현해 놓았으나 가급적 지양할것
+
+##### Collection 인터페이스
+
+- 컬렉션 클래스에 저장된 데이터의 읽기, 추가, 삭제 등 기본메서드들을 정의하고있따.
+- [API_메서드는 직접확인바람](https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html)
+
+##### List 인터페이스
+
+- 중복 허용, 저장순서 유지되는 컬렉션 구현에 사용
+- Vector, Stack, ArrayList, LinkedList 등이 있다.
+- [LIST API](https://docs.oracle.com/javase/8/docs/api/java/util/List.html)
+
+##### Set 인터페이스
+
+- 중복 비허용, 저장순서 유지 X
+
+##### Map 인터페이스
+
+- 키와 값 쌍으로 저장하는 컬렉션 클래스를 구현하는 데 쓰는 인터페이스
+- Hashtable, HashMap, LInkedHashMap, SortedMap, TreeMap 등이 있다.
+- [Map API](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html)
+- values()는 중복을 허용하기 때문에 Collection타입이고,
+- keys()는 중복을 허용하지 않기 때문에 Set타입이다.
+
+##### Map.Entry 인터페이스
+
+-Map인터페이스의 내부 인터페이스이다.
+
+```java
+public interface Map {
+	...
+	interface Entry {
+	...
+	}
+}
+```
+
+- key-value 쌍을 다루기 위해 내부적으로 Entry인터페이스가 정의되어있다.
+- Map을 구현할때는 Map.ENtry도 구현해야한다.
+
+#### 1.2 ArrayList
+
+- List인터페이스가 구현되어있다.
+- Vector보다는 ArrayList를 사용하자.
+- Object배열을 이용해 데이터를 순차적으로 저장한다.
+- ArrayList의 기본생성자는 10개 크기의 배열을 생성한다.
+- 저장할 크기가 짐작이 된다면 그거보다 살짝 더 크게 생성하는 것을 권장하고 있다. 크기를 늘리는 게 시간을 소요하는 작업이기 때문.
+- 배열은 크기를 바꿀 수 없기 때문에 새로운 배열에 데이터를 옮기는 방식으로 사용하고있다.
+    - 그래서 데이터 개수를 적당히 고려하여 충분한 용량의 인스턴스를 생성하는 게 좋다.
+
