@@ -59,6 +59,7 @@ String result = df.format(number);
 
 #### 2.2 SimpleDateFormat
 
+- [SimpleDateFormatAPI](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)
 - 날짜 용 패턴을 작성한다.
 
 ```java
@@ -203,11 +204,11 @@ now = Instant.ofEpochSecond(now.getEpochSecond());
 now = Instant.ofEpochSecond(now.getEpochSecond(), now.getNano());
 ```
 
+- java.util.Date 클래스를 대체하기 위한 것, Date클래스에도 Instant로 변환할 수 있는 메서드가 추가되었다.
 - 에포크타임(EPOCH TIME, 1970-01-01 00:00:00 UTC)부터 경과된 시간을 나노초단위로 계산
 - 단일진법이라 계신이 쉽다.
 - UTC기준이라 한국 시간대(+09:00)랑 수치가 다를 수 있다.
 - 시간대를 고려해야하면 OffsetDateTime이 있다.
-- java.util.Date 클래스를 대체하기 위한 것, Date클래스에도 Instant로 변환할 수 있는 메서드가 추가되었다.
 
 #### 3.4 LocalDateTime, ZonedDateTime
 - LocalDateTime <- LocalDate + LocalTime
@@ -276,6 +277,7 @@ System.out.println(du); // =>PT12H34M56S
 
 - java.time.formate패키지에 들어있음.
 - DateTimeFormatter를 우선 숙지하자.
+- [DateTimeFormatter API](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)
 
 ```java
 LocalDate date = LocalDate.of(2016, 1, 2);
@@ -298,7 +300,7 @@ String shorFormat = formatter.format(LocalDate.now());
 
 ##### 포맷 직접 정의하기
 
--format 기호는 [여기서확인](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)
+-format 기호는 API를 참조
 
 ```java
 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
@@ -440,4 +442,262 @@ public interface Map {
 - 저장할 크기가 짐작이 된다면 그거보다 살짝 더 크게 생성하는 것을 권장하고 있다. 크기를 늘리는 게 시간을 소요하는 작업이기 때문.
 - 배열은 크기를 바꿀 수 없기 때문에 새로운 배열에 데이터를 옮기는 방식으로 사용하고있다.
     - 그래서 데이터 개수를 적당히 고려하여 충분한 용량의 인스턴스를 생성하는 게 좋다.
+
+#### 1.3 LinkedList
+
+- 원래 크기를 변경할 수 없는 배열의 단점을 극복하기 위해 만들었다.
+- 기본형이 링크드리스트
+- 앞뒤로 왔다갔다할 수 있으면 더블링크드리스트
+- 써큘러 링크드 리스트는 끝과끝을 연결해 놓은 것이다.
+- 컬렉션프레임웍에서 제공하는 링크드리스트는 이중원형링크드리스트이다.
+- List인터페이스를 구현했기 때문에 ArrayList와 외견상 메서드는 같다
+
+#### 1.4 Stack과 Queue
+- 스택 : LIFO
+- 큐 : FIFO
+- 스택은 ArrayList, 큐는 LinkedList로 구현한다.
+
+##### PriorityQueue
+
+- 저장순서상관없이 우선순위가 높을 것을 꺼냄
+- null은 저장하지 못함(NullPointerException)
+- 배열사용, 힙의 형태로 저장.(가장 큰값, 작은 값을 빠르게 찾을 수 있음)
+- Number 친구들은 자체적으로 숫자를 비교하는 방법을 정의해서 방법을 지정하지 않아도된다.
+- 객체의 경우 비교방법을 제공해야한다.
+
+```
+public class ComparatorTest {
+	public static void main(String [] args) {
+		Queue pq = new PriorityQueue(new ComparatorTest().new Comp());
+		pq.offer(new FakeInt(3));
+		pq.offer(new FakeInt(5));
+		pq.offer(new FakeInt(2));
+		pq.offer(new FakeInt(1));
+		pq.offer(new FakeInt(7));
+		
+		System.out.println(pq);
+	}
+	
+	class Comp implements Comparator<FakeInt>{
+		@Override
+		public int compare(FakeInt o1, FakeInt o2) {
+			if(o1.getV()<o2.getV()) return -1;
+			else if(o1.getV()==o2.getV()) return 0;
+			
+			return 1;
+		}
+		
+	}
+	static class FakeInt{
+		int value;
+		FakeInt(int value){
+			this.value = value;			
+		}
+		int getV(){
+			return value;
+		}
+		@Override
+		public String toString() {
+			return value + ""; 
+		}
+	}
+}
+```
+
+##### Deque(Double-Ended Queue)
+- 양쪽으로 추가/삭제가 가능
+- 스택으로 써도되고 큐로 써도된다.
+
+#### Iterator, ListIterator, Enumeration
+
+- 컬렉션에 저장된 요소에 접근하는 데 쓰이는 인터페이스
+- Enumeration은 Iterator의 구버젼,
+- ListIterator는 Iterator를 상향시킨 것
+
+##### Iterator
+
+- 컬렉션에 저장된 요소들을 읽는 방법을 표준화한 것
+- 컬렉션이 자신에게 저장된 요소에 접근하는 Iterator 인터페이스를 정의하고 Iterator()를 통해 반환한다.
+
+```java
+List list = new ArrayList();
+Iterator it = list.iterator();
+
+while(it.hasNext()) System.out.println(it.next());
+```
+
+```java
+Map map = new HashMap();
+...
+Iterator it = map.keySet().iterator();
+Iterator enIt = map.entrySet().iterator();
+```
+
+- Iterator는 컬렉션의 특성을 반영한다. List의 Iterator는 순서를 기억하고 Set의 Iterator는 순서를 반영하지 않는다.
+- Iterator는 재사용되지 않아서 또 쓰려면 새로 받아와야한다.
+
+##### ListIterator와 Enumeration
+
+- [ListIterator API] (https://docs.oracle.com/javase/8/docs/api/java/util/ListIterator.html)
+- Enumeration은 컬렉션 프레임웍 이전의 것, 호환을 위해서 남겨놓고있다. ==> 되도록이면 Iterator를 쓰자.
+- ListIterator는 Iterator를 상속받아 기능을 추가했다. 양방향으로 이동이 가능하다.(List인터페이스 전용)
+- 선택적 기능(optional operation)은 구현하지 않아도되고, 아래와 같이 처리하면 된다.
+
+```java
+public void remove() { throw new UnsupportedOperationException(); }
+```
+
+- 이와같은 것은 java api문서에서도 그렇게 하라고 쓰여잇다. UnsupportedOperationException은 RuntimeException의 자손이다.
+- remove()는 next()와 같이 써야한다. remove()만 단독으로 쓰인다면 IllegalStateException이 발생한다.
+
+#### 1.6 Arrays
+
+- 배열을 다루는 데 유용한 메서드들이 정의되어있는 클래스
+- 오버로딩이 많이 돼서 많아보이지만 사실 몇개 안된다고한다.
+
+##### 배열 복사 - copyOf(), copyOfRange()
+
+- 배열을 복사하는 메서드, Range는 범위복사이다.,
+
+```java
+int[] arr = {0,1 ,2, 3, 4};
+int[] arr2 = Arrays.copyOfRange(arr, 2, 4); // {2, 3}
+int[] arr3 = Arrays.copyOf(arr, 3); // {0, 1, 2}
+```
+
+##### 배열 채우기 - fill(), setAll()
+
+- fill()은 값으로 채우고, setAll()은 함수형 인터페이스, 람다식을 기반으로 채운다.
+
+```java
+int[] arr = new int[5];
+Arrays.fill(arr, 9); // {9, 9, 9, 9, 9}
+Arrays.setAll(arr, () ->(int)(Math.random()*5)+1); // {1, 5, 2, 1, 1}
+```
+
+##### 배열 정렬과 검색 - sort(), binarySearch()
+
+-binarysearch는 당연하지만 정렬된 기준이다.
+
+```java
+int[] arr = {3, 2, 0, 1, 4};
+
+Arrays.sort(arr);
+System.out.println(Arrays.toString(arr));
+int idx = Arrays.binarySearch(arr, 2); //idx=2
+```
+
+##### 문자열의 비교와 출력 - equals(), toString()
+
+- 다차원 배열 용으로 deepToString()이라는 것이 있다., 이는 3차원 배열에서도 동작한다.
+- 마찬가지로 다차원배열 용으로 deepEquals()라는 것도 있다.
+
+##### 배열 -> List - asList(Object ... a)
+
+- 가변 인수기 때문에 저장할 요소를 나열하는 것도 가능하다.
+
+```java
+List list;
+list = Arrays.asList(new Integer[]{1, 2, 3, 4, 5});
+list = Arrays.asList(1, 2, 3, 4, 5);
+list.add(6); // UnsupportedOperationException
+```
+
+- asList로 반환한 List는 크기변경이 되지 않는다.
+
+```java
+List list = new ArrayList(Arrays.asList(1, 2, 3, 4, 5));
+```
+
+##### parallelXXX(), spliterator, stream()
+
+- parallel~~~()은 여러 쓰레드로 나누어 처리한다.
+- spliterator()는 Spliterator()를 반환하는 데 이도 여러 쓰레드로 처리할 수 있게 작업을 나누어놓는다.
+- stream()은 컬렉션을 스트림으로 변환한다.
+
+#### 1.7 Comparator와 Comparable
+
+- 컬렉션을 정렬하는 데 필요한 메서드를 정의하고 있다.
+- Arrays.sort()는 Comparable의 구현에 의해 정렬한다.
+
+```java
+public interface Comparator {
+	int compare(Object o1, Object o2);
+	boolean equals(Object obj);
+}
+public interface Comparable {
+	public int compareTo(Object o);
+}
+```
+
+- Comparable => 기본 정렬기준을 구현하는 데 사용한다.
+    - compareTo()는 비교하는 값보다 작으면 음수, 같으면 0, 크면 양수를 반환하도록 구현한다.
+    - 기본적으로 오름차 순
+- Comparator => 기본 정렬 기준 외 다른 기준으로 정렬하고자 할 때 사용한다.
+    - equals()는 Comparator를 구현한다면 오버라이딩을 할 필요가 있을 수도 있기에 정의되어있는 것이고compare()만 정의해도 무방하다.
+    - 내림차 순 등 다른 기준으로 정렬을 내고 싶을 때는 Comparator를 구현한다.
+
+#### 1.8 HashSet
+
+- Set인터페이스를 구현한 가장 대표적인 컬렉션, 중복 X
+- add(), addAll()을 사용하면 된다.
+- 참고
+    - 컬렉션 내 중복을 제거할 때도 쓰인다.
+    - 저장순서를 유지하고 싶다면 LinkedHashSet이 있다.
+    - 내부적으로 HashMap을 썼다.
+    - localfactor는 기본값이 0.75로 75%용량이 찼을 경우 2배로 확장시킨다.
+    - JDK1.8에서 스트림관련 내용이 추가되었다.
+- HashSet에서 커스텀 클래스의 비교를 설계대로 진행하기 위해서는 equals()와 HashCode()를 작성해야할 수도 있다.(둘 다 적합해야한다.)
+- JDK 1.8부터 도입된 Objects클래스의 hash()를 이용한 예
+
+```java
+public int hashCode() {
+	return Objects.hash(name, age); // int hash(Object ... values);
+}
+```
+- equals() 비교에 쓰인 정보가 수정되지 않다면, 실행 중인 자바 앱 내 동일 객체에 한 번 이상의 호출들은 일관성 있게 유지해야합니다. 그러나 항상 같은 값을 반환해야하는 것은 아닙니다.
+- equals()에 의해 같다고 판명되는 두 객체의 hashcode() 호출은 같은 integer 결과를 생성해야한다.
+- equals() 메서드에 의해 같지 않은 두 객체는, hashCode()를 부른다고 다른 integer 값을 생성해야하는 것은 아니다. 그러나 같지 않은 오브젝트들에 대해 다른 integer 값을 생성하는 것이 해시테이블의 퍼포먼스를 향상시킬 수 있음을 유념해야한다.
+
+
+- The general contract of hashCode is:
+     - Whenever it is invoked on the same object more than once during an execution of a Java application, the hashCode method must consistently return the same integer, provided no information used in equals comparisons on the object is modified. This integer need not remain consistent from one execution of an application to another execution of the same application.
+     - If two objects are equal according to the equals(Object) method, then calling the hashCode method on each of the two objects must produce the same integer result.
+     - It is not required that if two objects are unequal according to the equals(java.lang.Object) method, then calling the hashCode method on each of the two objects must produce distinct integer results. However, the programmer should be aware that producing distinct integer results for unequal objects may improve the performance of hash tables.
+     
+#### 1.9 TreeSet
+
+- 이진 검색 트리 형태로 데이터를 저장한다. 이진 검색 트리의 성능을 향상시킨 레드-블랙 트리로 구현했다.
+- 중복데이터의 저장을 허용하지 않고, 정렬을 하면서 저장한다.
+- 저장되는 객체가 Comparable을 구현하던가 Comparaotr를 함께 제공해줘야한다. 그렇지 않으면 예외가 발생한다.
+
+#### 1.10 HashMap, HashTable
+
+- MashMap을 사용할 것을 권장한다.
+- 키, 값의 쌍을 데이터(entry)로 저장
+- 해싱을 이용해서 검색에 뛰어나다.
+- HashMap은 내부에 Entry라는 내부클래스를 정의하고 Entry의 배열을 사용한다. 별개의 배열로 저장하지 않는 건 두 값을 하나로 긴밀하게 연결하고 싶어서이다.
+- 키는 대개 String의 대문자나 소문자로 통일해서 쓴다.
+
+##### 해싱과 해시 함수
+
+- 해싱이란 해시 함수를 이용해서 데이터를 해시테이블에 저장하고 검색하는 기법을 말한다.
+- 컬렉션에서 Hash가 붙어있다면 해싱을 구현한 것
+- 데이터의 키를 해시함수에 넣어서 배열의 한 요소를 얻고, 그 곳에 연결된 링크드리스트에 저장한다.
+    - HashMap같은 경우는 Object의 hashCode()를 이용해서 해싱한다.
+    - String은 값을 이용해서 hashcode를 만들도록 hashCode()가 오버라이딩되어있다.
+    - 사용자 정의 클래슨느 equals()와 hashCode()를 오버라이딩 해서 맞춰줘야 컬렉션에 넣을 때 원하는 대로 중복 혹은 중복 없이 넣을 수 있다.
+    
+#### 1.11 TreeMap
+
+- 이진 트리 형태로 데이터를 저장한다.
+- 검색은 HashMap이 기본적으로 뛰어나나 범위검색, 정렬이 필요할 때는 TreeMap이 유용하다.
+
+#### 1.12 Properties 
+
+- 애플리케이션 환경설정에 관련된 속성(property)를 저장하는 사용하는 게 일반적.
+- 파일로부터 데이터를 읽고 쓰는 편의기능을 제공함.
+- HashTable을 상속받아 구현
+- (키, 값)을 (String, String)의 형태로 저장한다.
+- [Properites API](https://docs.oracle.com/javase/10/docs/api/java/util/Properties.html)
 
