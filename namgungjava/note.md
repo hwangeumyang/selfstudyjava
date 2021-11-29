@@ -917,3 +917,103 @@ b2 = (Box<T>)b1;
 #### 1.8 지네릭 타입 비고
 
 - 지네릭 타입은 여기까지 다룬다. 이 이상의 내용이 쉽게 머리에 들어오지 않는 내용임에 반해 그 능률이 다른 것들을 익히는 데 투자할 때의 능률보다 심하게 떨어진다고 여겨지기 때문이다.
+
+### 2. 열거형(enums)
+
+#### 2.1 열거형이란?
+
+- JDK 1.5부터 추가
+- typesafe enum이다.
+    - C와 다르게 타입까지 함께 관리(논리적 오류 줄어듬)
+    - C같은 경우 타입이 달라도 값이 같으면 논리연산상 참으로 처리됐다.
+    
+```java
+class Card1 {
+	static final int CLOVER = 0;
+	static final int HEART = 1;
+	static final int DIAMOND = 2;
+	static final int SPADE = 3;
+	
+	static final int TWO = 0;
+	static final int THREE = 1;
+	static final int FOUR = 2;
+	
+	final int kind;
+	final int num;
+}
+class Card2 {
+	enum Kind { CLOVER, HEART, DIAMOND, SPADE }
+	enum Value { TWO, THREE, FOUR }
+	
+	final Kind kind;
+	final Value value;
+}
+```
+
+```
+Card1.CLOVER == Card2.TWO; // true, 의미상 false
+Card2.Kind.CLOVER == Card.Value.Two; // false, 값은 같음
+```
+- 위의 경우 상수의 값이 바뀔 경우 모든 소스를 다시 컴파일해야한다.(상수는 컴파일 시 값 그대로 박아버리는 듯 하다)
+- 상수의 변동이 있을 경우 위의 방식으로는 값을 수정할 일이 생기거나 추가하거나 할 때 귀찮아질 수 있다. ==> 열거형은 그럴 때 유용할 것이다.
+
+#### 2.2 열거형의 정의와 사용
+
+```
+enum 열거형이름 { 상수명1, 상수명2, ... }
+```
+
+- equals()말고 ==로 연산 가능하다.(후자가 빠르다고한다.)
+- 비교연산자는 사용이 불가능하다.
+- compareTo()는 사용가능하다.
+    - 동일할 시 0 왼쪽이 크면 양수, 오른쪽이 크면 음수를 반환한다.
+- switch ~ case 문에 사용 가능하다.
+    - case문에는 열거형의 이름은 적지 않고 상수의 이름만 적는다.
+    - 정확한 이유는 저자도 몰?루?인가 봄 ==> 보기 좋아 보인다는 추측이 있다.
+    
+``` java
+enums Direction { EAST, WEST, NORTH, SOUTH }
+class Unit {
+	int x, y; // place of unit
+	Direction dir; // declare enums for instance variable
+	
+	void init() {
+		dir = Direction.EAST; //init unit direction
+	}
+	
+	void move() {
+		/*
+		if(dir == Direction.EAST) { x++; }
+		else if(dir > Direction.WEST) {} //Error, can't use comparison operator
+		else if(dir.compareTo(Direction.WEST) > 0) { ... } //can use compareTo()		
+		*/
+	
+		switch(dir) {
+			case EAST: x++;
+				break;	
+			case WEST: x--;
+				break;
+			case SOUTH: y++;
+				break;	
+			case NORTH: y--;
+				break;
+		}		
+	}
+}
+```
+
+#### 개인적인 열거형 정리
+
+- 이름이 같더라도 다른 열거형은 서로 논리연산의 대상이 되지 않는다.(에러)
+- 다른 자바 파일에 정의된 열거형도 찾아낸다. 이것은 신기하네
+
+```java
+enum Animal { dog } 
+class MyAnimal { enum Animal { dog } }
+class Drive {
+	public static void main(String [] args ) {
+		System.out.println( Animal.dog == MyAnimal.Animal.dog ); // Error 
+	
+	}
+}
+```
