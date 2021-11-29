@@ -25,6 +25,7 @@ public class ProperitesEx1 {
 		System.out.println("cpapacity = " + prop.getProperty("capacity", "20"));
 		System.out.println("loadfactor = " + prop.getProperty("loadfactor", "0.75"));
 		
+		
 		System.out.println(prop);
 		prop.list(System.out);
 		 

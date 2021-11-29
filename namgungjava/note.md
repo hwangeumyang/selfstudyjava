@@ -696,8 +696,224 @@ public int hashCode() {
 #### 1.12 Properties 
 
 - 애플리케이션 환경설정에 관련된 속성(property)를 저장하는 사용하는 게 일반적.
-- 파일로부터 데이터를 읽고 쓰는 편의기능을 제공함.
+- 파일로부터 데이터를 읽고 쓰는 편의기능을 제공함. xml로 저장도 가능
 - HashTable을 상속받아 구현
 - (키, 값)을 (String, String)의 형태로 저장한다.
 - [Properites API](https://docs.oracle.com/javase/10/docs/api/java/util/Properties.html)
+- 읽어온 데이터의 문자셋 변환
 
+```java
+		String name = new String(prop.getProperty("name").getBytes("8859_1"), StandardCharsets.UTF_8 );
+```
+
+#### 1.13 Collections
+
+- Arrays 처럼 sort(), fill(), copy() 등등이 제공된다.
+
+##### 컬렉션의 동기화
+
+- 멀티스레드환경에서 하나의 객체가 여러 스레드에서 사용할 때 데이터의 일관성을 유지하기 위해서는 객체에 동기화(synchronization)가 필요하다.
+- ArrayList, HashMap 등 컬렉션은 필요한 경우에 java.util.Collections 클래스의 동기화 메서드를 이용해 동기화처리가 가능하게 되어있다.
+
+```java
+List syncList = Collections.synchronizedList(new ArrayList(...));
+```
+
+##### 변경불가 컬렉션 만들기
+
+- 읽기전용으로 만든다.
+- unmodifaibleXXX()를 이용하면된다.
+
+##### 기타 여러 기능
+
+- 싱글톤 컬렉션 만들기
+- 한 종류의 객체만 저장하는 컬렉션 만들기(jdk 1.5 이전의 호환성때문에 만듬)
+
+## Chap12 지네릭스, 열거형, 애너테이션
+
+### 1. 지네릭스
+
+- 다소 어려우면 적당히 이해하고 보고 넘어가자.
+- 다음부터는 오라클에서 가져온 내용이다.
+- A generic type is a generic class or interface that is parameterized over types.
+- An invocation of a generic type is generally known as a prameterized.
+
+#### 1.1 지네릭스란
+
+- 다양한 타입의 객체들을 다루는 메서드나 클래스에 컴파일 시에 타입체크를 해주는 기능.
+- 형변환의 번거로움을 줄이고, 타입안정성을 높인다.
+    - 의도하지 않은 타입의 객체를 다루는 걸 막는다.
+- 지네릭스의 장점
+    1. 타입 안정성 제공
+    1. 코드의 간결화(타입체크, 형변환의 생략)
+
+#### 1.2 지네릭 클래스의 선언
+
+- 클래스와 메서드에 선언할 수 있다.
+
+```java
+class Box {
+	Object item;
+	
+	void setItem(Object item) { this.item = item; }
+	Object getItem() { return item; }
+}
+-----------------
+class Box<T> {
+	T item;
+	void setItem(T item) { this.item = item; }
+	T getItem() { return item; }
+}
+```
+
+- Box&lt;T>에서 T를 타입매개변수(Type parameters)이라고 한다.
+    - ArrayList&lt;E>는 요소(Element)에서 E를 따왔다.
+    - T를 고집하지 말고 적당히 어울리는 것을 선택해서 쓰자.
+    - type parameters는 type variables 라고 부르기도한다.
+    
+- 타입변수는 결국 '임의의 참조형 타입'을 의미한다.
+- You can also substitute a type parameter (that is, K or V) with a parameterized type (that is, List<String>): 파라미터화된 타입과 함께 쓸 때는 타입파라미터를 생략해도 된다.
+
+```java
+OrderedPair<String, Box<Integer>> p = new OrderedPair<>("primes", new Box<Integer>(...));
+```
+
+```java
+Box<String> b = new Box<String>();
+//b.setItem(new Object()); //Error
+b.setItem("ABC");
+String item = b.getItem();
+```
+- 지네릭 클래스는 호환성을 위해 지네릭 이전의 방식으로 쓰는 것도 허용한다.
+- 하지만 &lt;Object&gt;로라도 명시하지 않으면 경고를 낸다.
+
+##### 지네릭스의 용어
+
+- Box&lt;T> 지네릭 클래스, T의 Box 혹은 T Box라고 읽는다.
+    - T - 타입변수, 타입 매개변수(T는 타입문자)
+    - Box - 원시타입(Raw Type): the name of a generic class or interface without any type arguments
+- 이름이 타입매개변수인 이유는 메서드의 매개변수와 비슷한 측면이 있어서
+- Box&lt;String>은 매개변수화(parameterized type)된 타입이라고한다. - 매개변수화가 끝난?
+    - An invocation of a generic type is generally known as a parameterized type.
+- 컴파일 후 Box&lt;String>도 Box&lt;Integer>도 원시타입인 Box로 바뀐다.(지네릭 타입의 제거)
+
+##### 지네릭스의 제한
+
+- static 멤버에 타입변수 T를 사용할 수 없다.(모든 객체에 동일하게 동작해야하기 때문) T는 인스턴스변수로 간주된다.
+    - 형이 매개변수화 되기 전에는 T가 정해지지 않는다. static T를 설정할 경우 매개변수화 시킬 때마다 static 타입인  T가 일반형이라는 것인 데 성립해서는 안된다.(모순적이다)----> 하나의 클래스변수에 동시에 존재하는 여러가지 형을 가지라는 것이므로
+- 지네릭 타입의 참조변수는 선언가능하지만, 배열은 생성할 수 없다.
+    - new 연산자가 컴파일 시점에 타입 T가 무엇인지 정확히 알아야한다.
+- 배열을 생성해야할 필요가 있을 경우
+    - new연산자 대신 Reflection API의 newInstance()같이 동적으로 객체를 생성하는 메서드로 배열을 만들거나.
+    - Object 배열을 생성해서 복사한 후에 T[]로 형변환 해서 사용한다.
+
+
+#### 1.3 지네릭 클래스의 객체 생성과 사용
+
+- 참조변수와 생성자에 대입된 타입알규먼트가 일치하지 않으면 에러가 발생한다.
+
+```java
+Box<Apple> appleBox = new Box<Grape>(); //Error
+```
+
+- 일반형(Generic Type)은 상속을 허용한다.
+
+```java
+Box<Apple> appleBox = new FruitBox<Apple>();
+```
+
+- JDK 1.7에서는 추정이 가능한 경우 타입이 생략이 가능하게 되었다. 참조변수에 타입변수을 명시했다면 생성자에서는 타입변수를 생략해도 좋다.
+
+#### 1.4 제한된 지네릭 클래스
+
+- 타입변수에 지정하는 특정 종류를 제한할 수 있다.
+- 인터페이스를 이용할 때도 extends를 사용한다.(implements는 사용 X)
+- 2 개 이상의 상속을 받을 때는 &를 사용한다.(아래 예제의 경우 Fruit와 Eatable을 동시에 만족해야한다.)
+
+```java
+class FruitBox<T extends Fruit & Eatable> {
+ ArrayList<T> list = new ArrayList<T>();
+}
+```
+
+#### 1.5 와일드 카드
+
+- 메서드 매개변수의 제너릭 타입에 쓰인다. 메서드의 매개변수에 지네릭 타입이 들어갈 때 타입변수가 다르게 해서는 오버로딩이 되지 않고 중복된 메서드가 되버린다.
+
+```java
+static Juice makeJuice(FruitBox<Fruit> box) { ... }
+
+...
+
+  FruitBox<Apple> appleBox = new FuirtBox<>();
+  makeJuice(appleBox); // error
+```
+```java
+//사실 예제에서 확인할 수 있지만 FruitBox의 타입변수는 항상 Fruit를 상속받아야하므로
+//<?>로도 FruitBox에서 쓰이는 타입변수는 Fruit의 기능을 사용할 수 있다는 것을 보증받는다.
+static Juice makeJuice(FruitBox<? extends Fruit> box) { ... }
+```
+
+- &lt;? extends T> 와일드 카드의 상한 제한, T와 자손만 가능
+- &lt;? super T> 와일드카드의 하한제한, T와 조상만 가능
+- &lt;?> 제한없음. &lt;? extends Object>와 상동
+- 와일드 카드는 &연산자를 사용할 수 없다.
+- 나중에 꺼내 쓰거나 하는 것을 고려해서 와일드카드를 잘 써 보자. 
+	- Object형으로 받으면 그 객체 고유 클래스 기능을 사용할 수 없지만, 지네릭 클래스 자체에서 애초에 제한이 걸려있다면 그 클래스 기능을 사용할 수 있다.
+
+
+#### 1.6 지네릭 메서드
+
+- Generic methods are methods that introduce their own type parameters. This is similar to declaring a generic type, but the type parameter's scope is limited to the method where it is declared. Static and non-static generic methods are allowed, as well as generic class constructors.
+- 지네릭 메서드는 고유의 타입 파라미터를 가지는 메서드들이다. 이 타입 파라미터의 스쿠프는 정의된 메서드 안으로 한정된다.(클래스에서 선언한 것과 이름은 같아도 구별되는 다른 것이다)
+- static 함수는 클래스에서 선언한 타입 파라미터를 쓸 수는 없지만, 자체적으로 타입파라미터를 선언해서 사용할 수는 있다. 
+
+```java
+static <T> void sort(List<T> list, Comparator<? super T> c){}
+```
+
+```java
+//와일드 카드
+static Juice makeJuice(FruitBox<? extends Fruit> box) {
+ ...
+}
+//지네릭 메서드
+static <T extends Fruit> Juice makeJuice(FruitBox<T> box) {
+ ...
+}
+```
+
+```java
+//지네릭 메서드의 호출
+   Juice juice = Juicer.<Fruit>makeJuice(fruitBox);
+   Juice juice = Juicer.<Apple>makeJuice(appleBox);
+```
+
+- 지네릭 메서드는 참조변수나 클래스 이름을 생략할 수 없다.
+- 컴파일러가 추정이 가능하다면 타입파라미터를 생략할 수 있다.
+- 아래와 같이 코드의 양을 줄일 수 있다.
+
+```java
+public static void printAll(ArrayList<? extends Product> l1, ArrayList<? extends Product> l2) { ...}
+
+public static <T extends Product> void printAll(ArrayList<T> l1, ArrayList<T> l2) {
+...
+}
+```
+
+#### 1.7 지네릭 타입의 형변환
+
+- 지네릭타입과 넌지네릭 타입간 형변환은 가능하다. ==> 경고 발생
+- 형매개변수(type parameter)가 다른 지네릭 타입끼리의 형변환은 안된다.
+
+```java
+Box b1 = new Box();
+Box<T> b2 = new Box<>();
+
+b1 = (Box)b2;
+b2 = (Box<T>)b1;
+```
+
+#### 1.8 지네릭 타입 비고
+
+- 지네릭 타입은 여기까지 다룬다. 이 이상의 내용이 쉽게 머리에 들어오지 않는 내용임에 반해 그 능률이 다른 것들을 익히는 데 투자할 때의 능률보다 심하게 떨어진다고 여겨지기 때문이다.
