@@ -918,6 +918,11 @@ b2 = (Box<T>)b1;
 
 - 지네릭 타입은 여기까지 다룬다. 이 이상의 내용이 쉽게 머리에 들어오지 않는 내용임에 반해 그 능률이 다른 것들을 익히는 데 투자할 때의 능률보다 심하게 떨어진다고 여겨지기 때문이다.
 
+#### 개인적인 지네릭 타입 정리
+
+- 지네릭 타입은 결국 범용성 있는 레퍼런스 타입에 관한 것인가 보다.
+
+
 ### 2. 열거형(enums)
 
 #### 2.1 열거형이란?
@@ -1002,10 +1007,89 @@ class Unit {
 }
 ```
 
+##### 모든 열거형의 조상 - java.lang.Enum
+
+- 열거형 상수 출력 예제
+- [Enum API](https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html)
+
+```java
+
+Direction dArr = Direction.values();
+
+for(Direction d : dArr){ 
+  System.out.printf("%s = %d%n", d.name(), d.ordinal());
+}
+```
+
+- Enum 클래스의 메서드들
+    - Class<E> getDeclaringClass : 열거형의 class 객체 반환.
+    - String name() : 열거형 상수의 이름을 문자열로 반환
+    - int ordinal() : 열거형 상수가 정의된 순서 반환(0부터)
+    - T valueOf(class<T> enumTypoe, Stirng name) : 지정된 열거형에서 name과 일치하는 열거형 상수 반환.
+
+
+#### 2.3 열거형에 멤버 추가하기
+
+- ordinal()은 열거형 상수가 정의된 순서를 반환한다. 하지만 그 값은 내부적으인 용도로 쓰는 게 옳다고 저자는 소개한다.
+- 열거형 상수의 값을 (값)의 형태로 적어줌으로 불연속적으로 정의할 수 있다.
+    - 열거형 상수를 먼저 정의한다.
+    - 지정된 값을 저장할 수 있는 인스턴스 변수와 생성자를 새로 추가해주어야한다.
+- 열거형의 인스턴스 변수가 반드시 final은 아니다.
+    - 열거형 상수의 값을 저장해야 한다면 final이 붙는다.
+- 열거형의 생성자는 외부에서 호출이 불가능하다.(묵시적으로 private이다.)
+- 열거형의 상수에 여러 값을 지정할 수 있으나 그에 맞게 인스턴스 변수, 생성자 등을 새로 추가해야한다.
+
+
+```java
+enum Direction {
+	EAST(1, ">"), SOUTH(5, "V"), WEST(-1, "<"), NORTH(10, "^");
+	
+	private final int value;
+	private final String symbol;
+	Direction(int value, String symbol) { this.value = value; this.symbol = symbol; }
+	
+	public int getValue() { return this.value; }
+	public String getSymbol() { return this.symbol; }
+}	
+```
+
+
+##### 열거형에 추상 메서드 추가하기.
+
+- 열거형의 각 상수?마다 다르게 동작하는 메서드를 추상메서드로 선언할 수 있다.
+- 각 상수를 정의할때마다 따로 정의해주면 된다.
+
+
+#### 2.4 열거형의 이해
+
+- 열거형의 상수하나는 사실 그 열거형의 객체이다.
+
+``` java
+enum Direction { EAST, WEST, , SOUTH, NORTH } // Direction의 객체 EAST, WEST, SOUTH, NORTH
+
+class Direction {
+	static final Direction EAST =  new Direction("EAST");
+	static final Direction SOUTH = new Direction("SOUTH");
+	static final Direction WEST =  new Direction("WEST");
+	static final Direction NORTH = new Direction("NORTH");
+	
+	private String name;
+	private Direction(String name) { this.name = name; }
+	
+}
+```
+
+- Direction 클래스의 static 상수 EAST, SOUTH, WEST, NORTH의 값은 객체의 주소이고, 이 값은 바뀌지 않아 ==로 비교가 가능하다.
+- 모든 열거형은 추상 클래스 Enum의 자손이다.
+
+
+
 #### 개인적인 열거형 정리
 
 - 이름이 같더라도 다른 열거형은 서로 논리연산의 대상이 되지 않는다.(에러)
 - 다른 자바 파일에 정의된 열거형도 찾아낸다. 이것은 신기하네
+    - 아마 클래스패스에만 있으면 같이 찾는 모양?
+    - enum 역시 클래스인데 전처리를 시키는 문법을 컴파일 단위로 만든 것일 수도 있겠다는 생각이 든다. 아닐 수도 있지만.
 
 ```java
 enum Animal { dog } 
@@ -1017,3 +1101,11 @@ class Drive {
 	}
 }
 ```
+
+- 열거형에 값을 지정할 때는 생성자만 있다면 컴파일 가능하다.
+- 다만 그 값을 적절히 활용하기 위해서는 별도로 사용자 정의가 필요하다.
+
+- 개인적인 감상
+    - 당분간 열거형을 일종의 사용자 설계 타입이라고 생각하고 쓰면 되지 않을까 싶다.
+    - 프리미티브 타입의  boolean은 false와 true의 도메인을 가진 것처럼, 내가 도메인을 설계해서 쓰는 사용자 정의 타입
+    - 저자가 열거형 변수를 final로 지정한 건 아마 원칙같은 것 때문일 것 같다. 열거형 변수가 지정되면 immutable하기를 바라서가 아닐까 싶다.
