@@ -1109,3 +1109,160 @@ class Drive {
     - 당분간 열거형을 일종의 사용자 설계 타입이라고 생각하고 쓰면 되지 않을까 싶다.
     - 프리미티브 타입의  boolean은 false와 true의 도메인을 가진 것처럼, 내가 도메인을 설계해서 쓰는 사용자 정의 타입
     - 저자가 열거형 변수를 final로 지정한 건 아마 원칙같은 것 때문일 것 같다. 열거형 변수가 지정되면 immutable하기를 바라서가 아닐까 싶다.
+    
+### 3. 애너테이션Annotation
+
+#### 3.1. 애너테이션이란
+
+- 주석, 주해, 메모
+- 초기: 자바 문서를 소스 파일과 함께 만들어서 주석으로 HTML을 만들어서 사용함(javadoc.exe를 이용함)
+- 소스코드 안에 다른 프로그램을 위한 정보를 미리 약속된 형식으로 포함시킨 것.
+- 사용할 수 있는 애너테이션은 다른 프로그램에서 정의한 것도 있다.
+
+#### 3.X Predefined Annotation Types
+
+- 3.2. 표준 애너테이션과 오라클의 [Predifined Annotation Types](https://docs.oracle.com/javase/tutorial/java/annotations/predefined.html)를 섞어서 정리하겠다.
+- java SE api 안에 선정의된 애노테이션 타입의 집합
+- 일부는 자바 컴파일러에 의해, 일부는 다른 애노테이션에 의해 사용된다. 
+
+##### 3.X.1 Annotation Types used by the Java Language
+
+- @Deprecated, @Override, @SuppressWarnings, @SupressWarnings는 java.lang에 선정의되어있다. 그 외에도  @FunctionalInterface 어느테이션이 있다.
+
+
+- @Deprecated
+    - 더 이상 쓰지 않게 알림.
+    - 컴파일러에서도 이것이 쓰인 클래스나 메서드, 필드를 쓰게 되면 경고를 발생시킨다.
+    - deprecated 되면 javadoc에서도 @deprecated 태그를 확인할 수 있다.(주석에서도, 코드상에서도), 주석상에 이유도 같이 기술함.
+- @Override
+    - 컴파일러에게 해당 요소가 superclass에 정의된 요소를 오버라이드 한다는 것을 알려줌
+    - 꼭 써야할 필요는 없지만, 에러 방지를 방지하는 역할
+    - 수퍼클래스에 것을 정확히 오버라이딩하지 않으면 컴파일러가 에러를 생성한다.
+- @SuppressWarnings
+    - 컴파일러에게 특정 경고를 억누르게 한다.
+    - Every compiler warning belongs to a category. The Java Language Specification lists two categories: deprecation and unchecked.
+    - *unchekced는 제너릭 도래 이전 레거시 코드에서 발생하기 쉽다.
+    - To suppress multiple categories of warnings, use the following syntax:
+        - @SuppressWarnings({"unchecked", "depreacation"})
+- @SafeVarargs
+    - *varargs : 가변인자, '메서드 이름(형 ... 이름)'의 형태로 쓰인다.
+    - 메서드나 생성자에 쓰면 varargs 파라미터 상에 잠재적으로 안전하지 않은 동작을 이행하지 않는다고 주장하는 꼴이 된다.
+    - varagres 관련 unchecked 경고를 막아준다.
+    - unchecked 경고는 억눌러주지만 varargs 경고는 억누르지 못하니 그럴 경우에는 @SuppressWarnings(varargs)를 붙인다.
+        - 해당경고는 -Xlint 옵션과 함꼐 쓰지 않으면 경고가 보이지 않는다고 한다. 
+- @FunctionalInterface
+    - @FunctionalInterface annotation, introduced in Java SE 8, indicates that the type declaration is intended to be a functional interface, as defined by the Java Language Specification.
+
+##### 3.X.2 Annotations That Apply to Other Annotations
+
+- 다른 어노테이션에 적용되는 어노테이션들은 meta-annotaions라고 불린다.
+- 여러 메타 어노테이션 형들이 java.lang.annotation에 정의되어있다.
+
+
+- @Retention
+    - 마크된 어노테이션이 얼마나 유지되는 지를 명기합니다
+        - RetentionPolicy.SOURCE: The marked annotation is retained(존속, 유지) only in the source level and is ignored by the compiler.
+      - RetentionPolicy.CLASS: The marked annotation is retained by the compiler at compile time, but is ignored by the Java Virtual Machine (JVM).
+      - RetentionPolicy.RUNTIME: The marked annotation is retained by the JVM so it can be used by the runtime environment.
+        
+- @Documented
+    - javadoc 툴을 사용해 문서화해야하는 요소에 사용된다.
+    - 기본적으로 애노테이션들은 자바독에 포함되지 않는다.
+- @Target
+    - 다른 어노테이션에 어느 종류의 자바 요소(elements)가 해당 어노태이션에 의해 적용될 수 있는 지를 한정시킨다.
+    - 타겟 어노테이션은 아래 요소 형(element type)을 값으로 취하도록 명시되어있다.
+        - ElementType.ANNOTATION_TYPE can be applied to an annotation type.
+        - ElementType.CONSTRUCTOR can be applied to a constructor.
+        - ElementType.FIELD can be applied to a field or property.
+        - ElementType.LOCAL_VARIABLE can be applied to a local variable.
+        - ElementType.METHOD can be applied to a method-level annotation.
+        - ElementType.PACKAGE can be applied to a package declaration.
+        - ElementType.PARAMETER can be applied to the parameters of a method.
+        - ElementType.TYPE can be applied to any element of a class.      
+- @Inherited
+    - 애노테이션 타입에 수퍼 클래스로부터 상속 될 수 있게 지시합니다.
+    - 클래스 명세에만 적용됩니다.
+- @Repeatable
+    - 자바 se8에서 소개됨.
+    - 한 번 이상 적용가능될 수 있게 함.
+
+- @Native
+    - 네이티브 메서드에 의해 참조되는 상수필드에 붙이는 애노테이션
+        - *네이티브 메서드
+            - jvm이 설치된 os의 메서드
+            - 보통 c언어로 작성
+            - 보통 선언부만 정의하고 구현은 하지 않는다.
+
+#### 3.4 애너테이션 타입 정의하기
+
+
+@를 붙이고, Interface를 정의한다.
+
+```java
+@interface 애너테이션이름 {
+    타입 요소이름();
+    ...
+}
+```
+
+- *@Override <= 애너테이션
+- *Override <= 애너테이션 타입
+
+##### 애너테이션의 요소
+
+- 애너테이션 내에 선언된 메서드
+    - 반환값이 있고, 매개변수는 없는 추상 메서드의 형태
+    - 상속으로 구현 하지 않아도 된다. => 대신 애너테이션 적용할 때 요소들의 이름과 값을 지정해야함.(순서는 상관 없음)
+- 애너테이션에는 상수는 정의할 수 있으나 디폴트 메서드는 정의할 수 없다.
+- 애너테이션의 요소에 기본값 지정 가능하다. 이 경우 값을 지정하지 않으면 기본값을 사용한다. 기본값은 null을 제외한 모든 리터럴literal(소스 코드 상의 고정된 값) 가능
+- 애너테이션의 요소가 하나이고 이름의 value인 경우 애너테이션 요소의 이름을 생략하고 값만 넣어도 된다.
+- 요소 값이 배열인 경우 {} 안에 여러 값을 지정할 수 잇따.
+ 
+
+```java
+//정의 예
+//TestInfo는 5개의 요소를 가지고 있다.
+@Interface TestInfo{
+    int count();
+    String testedBy();
+    String[] testTools();
+    TestType testType(); // enum TestType { FIRST, FINAL }
+    DateTime testDate(); // 자신이 아닌 다른 애너테이션(@DateTime)을 포함할 수 있따.
+}
+@Interface DateTiem {
+	String yymmdd();
+	String hhmmss();
+}
+```
+
+```java
+//사용 예
+@TestInfo(
+	count = 3, testedBy="Kim",
+	testTools={"JUnit", "AutoTester"),
+	testType=TestType.FIRST,
+	testDate=@DateTime(yymmdd="160101", hhmmss="235959")
+)
+public class NewClass { ... }
+```
+
+```java
+//기본값의 예, 괄호의 예
+@interface TestInfo {
+	int count() default 1;
+	String[] info() default { "example", "of", "defaultValue" }
+}
+```
+
+```java
+//SuppressWarnings, 요소가 value 하나인 경우,
+@interface SuppressWarnings{
+	String[] value();
+}
+
+//이용 예
+@SuppressWarnings( {"deprecation", "unchecked" } )
+class NewClass { ... }
+```
+
+##### java.lang.annotation.Annotation
