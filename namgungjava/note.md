@@ -1266,3 +1266,32 @@ class NewClass { ... }
 ```
 
 ##### java.lang.annotation.Annotation
+
+- 모든 애너테이션의 조상은 Annotation 인터페이스
+- 애너테이션은 상속이허용되지 않는다.(애너테이션 정의문법을 말하는 것)
+
+```java
+@interface TestInfo extends Annotation { // error
+...
+}
+
+```
+
+- Annotation 인터페이스에 정의된 메서드들은 모든 애너테이션 객체에서 호출 가능하다.
+
+##### Marker Annotation
+
+- 값을 지정할 필요가 없는 경우, 요소가 정의되지 않은 애노태이션
+
+##### 애너테이션 요소 규칙
+
+- 요소 타입 : 기본형, String, enum, enum, 애너테이션, Class만 허용
+- ()안에 매개변수 선언 불가.
+- 예외 선언 불가
+- 요소를 타입 매개변수로 정의할 수 없음.
+
+
+#### 개인적인 정리
+
+- 어노테이션 타입도 별도로 import 가능했다. 처음알았다.
+- 열거형도 마찬가지였다.
