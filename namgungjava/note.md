@@ -1299,18 +1299,101 @@ class NewClass { ... }
 
 ## Chap 14 람다와 스트림
 
+One issue with anonymous classes is that if the implementation of your anonymous class is very simple, such as an interface that contains only one method, then the syntax of anonymous classes may seem unwieldy and unclear. In these cases, you're usually trying to pass functionality as an argument to another method, such as what action should be taken when someone clicks a button. Lambda expressions enable you to do this, to treat functionality as method argument, or code as data.
+
+The previous section, Anonymous Classes, shows you how to implement a base class without giving it a name. Although this is often more concise than a named class, for classes with only one method, even an anonymous class seems a bit excessive and cumbersome. Lambda expressions let you express instances of single-method classes more compactly.
+
+### 1. 람다식
+
 - JDK1.8에 추가
 - 함수형 언어의 특징을 지니게 함.
 
-### 1.1 람다식이란?Lambda expression
+
+#### 1.1 람다식이란?Lambda expression
 
 - 메서드를 하나의 식(expression)으로 나타낸 것.
-- 메서드의 이름과 반환값이 사라져서 람다식을 익명함수라고 부르기도한다.
+- 람다식을 익명함수라고 부르기도한다. <= 메서드의 이름과 반환값이 사라져서
 
 ```java
 int[] arr = new int[5];
-Arrays.setAll(arr, (i) -> (int)(Math.random()*5)+1);
+Arrays.setAll(arr, () -> (int)(Math.random()*5)+1);
 ```
+
+#### 1.2 람다식 작성하기
+
+- 이름과 반환타입을 제거하고 선언부와 몸통 사이에 -> 를 추가함
+- 반환 값이 있는 경우 식(expression)으로 return을 대신할 수 있다.(세미콜론을 붙이지 않는다.)
+- 추론이 가능한 경우에는 생략할 수 있다.
+    - 매개변수의 타입
+    - 반환값 역시 추론이 가능하기 때문에 생략된다. 
+
+```java
+int max(int a, int b) {
+	return a > b ? a : b;
+}
+
+...
+
+(int a, int b) -> a > b ? a : b
+
+```
+
+- 매개변수가 하나인 경우 괄호 생략 가능하다.
+
+```java
+//기본형
+(int a, int b) -> {
+   a += 5;
+	return a + b;
+}
+
+//파라미터가 유추 가능한 경우
+(a, b) -> {
+	a+=5;
+	return a+b;
+}
+
+//파라미터가 하나인 경우
+a -> {
+	a+=5;
+	return a;
+}
+
+//반환값만 쓸 경우(바로 리턴한다.)
+a -> a+5
+
+// 몸통의 문장이 하나인 경우
+void 
+(a, b) -> a+b
+```
+
+#### 1.3 함수형 인터페이스
+
+- 람다식을 다루기 위한 인터페이스
+    - 추상 메서드는 하나만 있어야 한다.
+    - static, default 메서드에는 개수제약이 없다. 
+- 람다식은 익명객체와 동등하다.
+- @FunctionalInterface 애너테이션을 이용해 조건을 체크할 수 있다.
+
+
+##### 외부 변수를 참조하는 람다식
+
+- 람다식이 외부의 지역 변수 등을 이용할 때는 그 변수가 final이거나 그에 준할 필요가 있다.(변화한다면 안된다, 컴파일러가 상수로 박아놔야 가능한 듯 하다.)
+    - 람다식 내부든, 외부든 변화하는 변수를 사용하려한다면 에러가 발생
+    - static의 경우는 해당 없다. 중간에 바꿔도 무방했다.
+- 외부지역변수와 같은 이름의 람다식 매개변수는 허용되지 않는다.
+
+#### 1.4 java.util.function 패키지
+
+- 일반적으로 자주 쓰이는 함수형 인터페이스들을 정의
+- 새로운 함수형 인터페이스를 정의할 것 없이 여기에 있는 것을 가져다 써도 되면 쓰면 된다.
+    - 재사용성, 유지보수 등에 유리
+- 
+
+##### Predicate
+
+- Function의 변형
+- boolean을 반환한다. 
 
 #### 개인적인 정리
 
