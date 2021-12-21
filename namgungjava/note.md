@@ -1388,15 +1388,87 @@ void
 - 일반적으로 자주 쓰이는 함수형 인터페이스들을 정의
 - 새로운 함수형 인터페이스를 정의할 것 없이 여기에 있는 것을 가져다 써도 되면 쓰면 된다.
     - 재사용성, 유지보수 등에 유리
-- 
+- predicate는 결과로 참이나 거짓을 뱉는 함수들을 칭할 때 쓴다.(수학적 용어)
+- 매개 변수가 두 개인 경우 Bi접두사가 붙어있다.
+- Operator는 반환 타입과 매개변수의 타입이 같다.
 
-##### Predicate
+다음 함수형 인터페이스들은 매개변수와 반환값과 상황에 맞추어 쓰면 된다. T는 Type, R은 Return의 약자이다. u, v, w의 경우는 t의 다음순번이라 쓰인다.
 
-- Function의 변형
-- boolean을 반환한다. 
+- java.lang.Runnable: void run()
+- Supplier<T>: T get()
+- Consumer<T>: void accept(T t)
+- Function<T, R>: R apply(T t)
+- Predicate<T>: boolean test(T t)
+- BiConsumer<T, U>: void accept(T t, U u)
+- BiPredicate<T, U>: boolean test(T t, U u)
+- BiFunction<T, U, R>: R apply(T t, U u) 
+- UnaryOperator<T>: T apply(T t)
+- BinaryOperator<T>: T apply(T t, T t)
+
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-g7sd{border-color:inherit;font-weight:bold;text-align:left;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-g7sd">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return<br>parameter</th>
+    <th class="tg-g7sd">0</th>
+    <th class="tg-g7sd">1</th>
+    <th class="tg-g7sd">return boolean</th>
+    <th class="tg-g7sd">return T<br/>(same with parameter)</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-lboi">0</td>
+    <td class="tg-lboi">java.lang.Runnable:<br/>void run()</td>
+    <td class="tg-lboi">Supplier:<br/>T get()</td>
+    <td class="tg-lboi"></td>
+    <td class="tg-lboi"></td>
+  </tr>
+  <tr>
+    <td class="tg-lboi">1</td>
+    <td class="tg-lboi">Consumer:<br/>void accept(T t)</td>
+    <td class="tg-lboi">Function:<br/>R apply(T t)</td>
+    <td class="tg-lboi">Predicate:<br/>boolean test(T t)</td>
+    <td class="tg-lboi">UnaryOperator:<br/>T apply(T t)</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi">2</td>
+    <td class="tg-lboi">BiConsumer:<br/>void accept(T t, U u)</td>
+    <td class="tg-lboi">BiFunction:<br/>R apply(T t, U u, R r)</td>
+    <td class="tg-lboi">BiPredicate:<br/>boolean test(T t, U u)</td>
+    <td class="tg-lboi">BinaryOperator:<br/>T apply(T t, T t)</td>
+  </tr>
+</tbody>
+</table>
+
+##### 컬렉션 프레임웍과 함수형 인터페이스
+
+ 컬렉션의 프레임웍 인터페이스에 추가된 함수형 인터페이스를 쓰는 디폴트 메서드들에 알아보자.
+
+
+- Collection:boolean removeIf(Predicate<E> filter)
+- List:void:replaceAll(UnaryOperator<E> operator)
+- Iterable:forEach(Consumer<T> action)
+- Map:Compute(K key, BiFunction<K, V, V> f)
+- 이하 생략
+
+
+
+
+
 
 #### 개인적인 정리
 
 - 람다식은 하나의 빈 메서드(추상 메서드)를 자동으로 채워주는 것과 그에 관한 익명객체에 생성을 간략화 시켜주는 식(expression)이다. 그 결과는 익명객체로서 반환된다.
 - 람다식의 타겟은 반드시 함수형 인터페이스여야 한다.
 - 함수형 인터페이스 애너테이션은 컴파일 단계에서 함수형 인터페이스 조건을 충족하는 지 알려주기 위한 것인듯 싶다. 붙이든 안붙이든 람다식을 붙여 쓰는 데 사소한 차이도 발견하지 못하였다.
+- 컬렉션 프레임웍의 함수형인터페이스를 쓰게 만들어진 것들은 지네릭이 클래스에 정의된 것을 쓰는 것을 확인했다.
