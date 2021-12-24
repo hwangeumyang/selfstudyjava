@@ -1461,8 +1461,114 @@ void
 - Map:Compute(K key, BiFunction<K, V, V> f)
 - 이하 생략
 
+##### 기본형을 사용하는 함수형 인터페이스
+
+ ToIntFunction<T>와 같이 프리미티브 타입이 미리 박혀있는 함수형 인터페이스도 있다. 용도만 정해져있다면 오토 박싱/언박싱의 횟수가 줄어 성능이 더 좋다.
+
+####  1.5. Function의 합성과 Predicate의 결합
+
+- java.util.function 패키지에 정의된 함수형 인터페이스를 요리조리 합성해서 사용하는 방법을 기술한다.
+- io에서 스트림의 합성과 비슷한 느낌으로 접근하면 될 것 같다.
+- 자세한 방법은 예제코드로 대체한다. Predicate의 사용례는  chap13.sec01.LambdaEx7에서 직접 확인할 것.
+
+```java
+		Function<String, Integer> f = (s) -> Integer.parseInt(s, 16);
+		Function<Integer, String> g = (i) -> Integer.toBinaryString(i);
+		
+		Function<String, String> h = f.andThen(g);
+		Function<Integer, Integer> h2 = f.compose(g);
+		
+		System.out.println(h.apply("FF")); // "FF" -> 255 -> 11111111
+		System.out.println(h2.apply(2)); // 2 -> "10" -> 16
+```
+
+#### 1.6 메서드 참조
+
+You use lambda expressions to create anonymous methods. Sometimes, however, a lambda expression does nothing but call an existing method. In those cases, it's often clearer to refer to the existing method by name. Method references enable you to do this; they are compact, easy-to-read lambda expressions for methods that already have a name.
+
+- 람다식 안에 다른 메서드를 참조하는 것처럼 보이게 표기하는 것.
+- 실제론 대체하는 것이라고 생각해도 무방하다.
+- 말 그대로 메서드가 메서드를 참조시키는 것처럼 보인다.
+
+<table summary="Kinds of method references" border="1">
+  <tbody><tr>
+    <th id="h1">Kind</th>
+    <th id="h2">Syntax</th>
+    <th id="h3">Examples</th>
+  </tr>
+  
+  <tr>
+    <td headers="h1">Reference to a static method</td>
+    <td headers="h2"><code><em>ContainingClass</em>::<em>staticMethodName</em></code></td>
+    <td headers="h3"><code>Person::compareByAge</code><br>
+        <code>MethodReferencesExamples::appendStrings</code></td>
+  </tr>
+  
+  <tr>
+    <td headers="h1">Reference to an instance method of a particular object</td>
+    <td headers="h2"><code><em>containingObject</em>::<em>instanceMethodName</em></code></td>
+    <td headers="h3"><code>myComparisonProvider::compareByName</code><br>
+        <code>myApp::appendStrings2</code></td>
+  </tr>
+  
+  <tr>
+    <td headers="h1">Reference to an instance method of an arbitrary object of a particular type</td>
+    <td headers="h2"><code><em>ContainingType</em>::<em>methodName</em></code></td>
+    <td headers="h3"><code>String::compareToIgnoreCase</code><br>
+        <code>String::concat</code></td>
+  </tr>
+  
+  <tr>
+    <td headers="h1">Reference to a constructor</td>
+    <td headers="h2"><code><em>ClassName</em>::new</code></td>
+    <td headers="h3"><code>HashSet::new</code></td>
+  </tr>
+  
+</tbody>
+</table>
 
 
+```java
+Function<String, Integer> strToInt = (String s) -> Integer.parseInt(s);
+Function<String, Integer> strToInt2 = Integer::parseInt;
+
+Person p = new Person();
+Function<Person, Boolean> f = (x) -> p.equals(x);
+Function<Person, Boolean> f = p::equals;
+
+
+//Reference to an Instance Method of an Arbitrary Object of a Particular Type
+BiFunction<String, String, Boolean> f = (s1, s2) -> s1.equals(s2);
+BiFunction<String, String, Boolean> f = String::equals;
+
+Function<Integer, int[]> f = x -> new int[x];
+Function<Integer, int[]> f = int[]::new; 
+```
+
+
+
+```java
+class Cat { public boolean eat(Rat rat) { return true; } }
+class Rat { }
+...
+
+	//Working
+		BiFunction<Cat, Rat, Boolean> ff = Cat::eat;
+		//Error
+//		BiFunction<Rat, Cat, Boolean> ff2 = Cat::eat;
+
+		System.out.println(ff.apply(catty, new Rat())); //true
+```
+### 2. 스트림
+
+- java.util.Stream: Classes to support functional-style operations on streams of elements, such as map-reduce transformations on collections.
+
+
+#### 2.1 스트림이란?
+
+ - Arrays와 Collections을 통째로 다룰 수 있게되었다.
+ 
+ 
 
 
 
